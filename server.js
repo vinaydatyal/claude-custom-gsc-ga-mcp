@@ -145,26 +145,32 @@ server.headersTimeout = 20_000;
 server.requestTimeout = 60_000;
 server.keepAliveTimeout = 65_000;
 
-server.listen(config.port, config.host, () => {
-  log('info', 'listening', {
-    url: config.baseUrl,
-    connectorUrl: config.resourceUrl,
-    port: config.port,
-    write: config.enableWrite,
-    cimd: config.enableCimd,
-    allowedEmails: config.allowedEmails.length,
-    tools: availableTools().length,
-    secret: config.secretFingerprint,
+// On Vercel, the handler is invoked per request. On a traditional Node server,
+// we start listening immediately. Detect which by checking for VERCEL env.
+if (!process.env.VERCEL) {
+  server.listen(config.port, config.host, () => {
+    log('info', 'listening', {
+      url: config.baseUrl,
+      connectorUrl: config.resourceUrl,
+      port: config.port,
+      write: config.enableWrite,
+      cimd: config.enableCimd,
+      allowedEmails: config.allowedEmails.length,
+      tools: availableTools().length,
+      secret: config.secretFingerprint,
+    });
   });
-});
 
-function shutdown(signal) {
-  log('info', 'shutting down', { signal });
-  stopStore();
-  server.close(() => process.exit(0));
-  setTimeout(() => process.exit(0), 5000).unref();
+  function shutdown(signal) {
+    log('info', 'shutting down', { signal });
+    stopStore();
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 5000).unref();
+  }
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
 
+// Default export for Vercel; named export for traditional Node.
+export default server;
 export { server };
