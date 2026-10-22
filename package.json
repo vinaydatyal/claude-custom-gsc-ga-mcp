@@ -1,0 +1,19 @@
+{
+  "name": "gsc-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal remote MCP server for Google Search Console and Google Analytics 4, with a built-in OAuth 2.1 authorization server for claude.ai custom connectors.",
+  "type": "module",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test/smoke.js",
+    "secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('base64url'))\""
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
